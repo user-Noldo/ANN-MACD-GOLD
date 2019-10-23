@@ -1,0 +1,293 @@
+//@version=4
+
+//MIT License
+
+//Copyright (c) 2019 user-Noldo and wro-clai
+
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+
+study("ANN MACD GOLD " , max_bars_back = 21)
+src = close[0]
+lights          = input(title="Barcolor I / 0 ? ", options=["ON", "OFF"], defval="OFF")
+
+// Definition : INDICATORS
+
+// RSI
+
+_rsi = rsi(close,14)
+
+// MACD
+
+fun_macd(_src,_fastlen,_slowlen,_signallen) =>
+
+    float _output = na 
+    _macd   = ema(_src,_fastlen) - ema(_src,_slowlen)
+    _signal = ema(_macd , _signallen)
+    _output := _macd - _signal
+
+
+_hist = fun_macd(src,12,26,9)
+
+// MOMENTUM
+
+t_mom = 10
+
+
+f_mom(_src , _length) =>
+
+    _output = 0.00
+    _length_adjusted = _length < 0 ? 0 : _length
+
+    _output := nz((_src / _src[_length_adjusted] ) - 1 ) * 100   
+
+
+mom = f_mom(src , t_mom)
+
+// BOLLINGER BANDS 
+
+length = input(20, minval=1)
+mult = input(2.0, minval=0.001, maxval=50)
+basis = sma(src, length)
+dev = mult * stdev(src, length)
+upper = basis + dev
+lower = basis - dev
+
+
+// CM GUPPY EMA 
+
+len1 = input(3, minval=1, title="Fast EMA 1")
+len2 = input(5, minval=1, title="Fast EMA 2")
+len3 = input(8, minval=1, title="Fast EMA 3")
+len4 = input(10, minval=1, title="Fast EMA 4")
+len5 = input(12, minval=1, title="Fast EMA 5")
+len6 = input(15, minval=1, title="Fast EMA 6")
+//Slow EMA
+len7 = input(30, minval=1, title="Slow EMA 7")
+len8 = input(35, minval=1, title="Slow EMA 8")
+len9 = input(40, minval=1, title="Slow EMA 9")
+len10 = input(45, minval=1, title="Slow EMA 10")
+len11 = input(50, minval=1, title="Slow EMA 11")
+len12 = input(60, minval=1, title="Slow EMA 12")
+
+
+//Fast EMA
+ema1 = ema(src, len1)
+ema2 = ema(src, len2)
+ema3 = ema(src, len3)
+ema4 = ema(src, len4)
+ema5 = ema(src, len5)
+ema6 = ema(src, len6)
+//Slow EMA
+ema7 = ema(src, len7)
+ema8 = ema(src, len8)
+ema9 = ema(src, len9)
+ema10 = ema(src, len10)
+ema11 = ema(src, len11)
+ema12 = ema(src, len12)
+
+
+// DEEP LEARNING INDICATORS
+
+_indicator1 = ((_rsi - _rsi[1] ) / (_rsi[1]))
+_indicator2 = ((volume - volume[1] ) / (volume[1]))
+_indicator3 = ((_hist - _hist[1] ) / (_hist[1]))
+_indicator4 = ((mom - mom[1] ) / (mom[1]))
+_indicator5 = ((lower - lower[1] ) / (lower[1]))
+_indicator6 = ((basis - basis[1] ) / (basis[1]))
+_indicator7 = ((upper - upper[1] ) / (upper[1]))
+
+_indicator8  = ((ema1 - ema1[1] ) / (ema1[1]))
+_indicator9  = ((ema2 - ema2[1] ) / (ema2[1]))
+_indicator10 = ((ema3 - ema3[1] ) / (ema3[1]))
+_indicator11 = ((ema4 - ema4[1] ) / (ema4[1]))
+_indicator12 = ((ema5 - ema5[1] ) / (ema5[1]))
+_indicator13 = ((ema6 - ema6[1] ) / (ema6[1]))
+_indicator14 = ((ema7 - ema7[1] ) / (ema7[1]))
+_indicator15 = ((ema8 - ema8[1] ) / (ema8[1]))
+_indicator16 = ((ema9 - ema9[1] ) / (ema9[1]))
+_indicator17 = ((ema10 - ema10[1] ) / (ema10[1]))
+_indicator18 = ((ema11 - ema11[1] ) / (ema11[1]))
+_indicator19 = ((ema12 - ema12[1] ) / (ema12[1]))
+
+
+
+// Inputs on Tangent Function : 
+
+tangentdiff(_src) => nz((_src - _src[1]) / _src[1] ) 
+
+
+// Deep Learning Activation Function (Tanh) : 
+
+ActivationFunctionTanh(v) => (1 - exp(-2 * v))/( 1 + exp(-2 * v))
+
+
+// DEEP LEARNING 
+
+// INPUTS : 
+
+input_1 = tangentdiff(_indicator1)
+input_2 = tangentdiff(_indicator2)
+input_3 = tangentdiff(_indicator3)
+input_4 = tangentdiff(_indicator4)
+input_5 = tangentdiff(_indicator5)
+input_6 = tangentdiff(_indicator6)
+input_7 = tangentdiff(_indicator7)
+input_8 = tangentdiff(_indicator8)
+input_9 = tangentdiff(_indicator9)
+input_10 = tangentdiff(_indicator10)
+input_11 = tangentdiff(_indicator11)
+input_12 = tangentdiff(_indicator12)
+input_13 = tangentdiff(_indicator13)
+input_14 = tangentdiff(_indicator14)
+input_15 = tangentdiff(_indicator15)
+input_16 = tangentdiff(_indicator16)
+input_17 = tangentdiff(_indicator17)
+input_18 = tangentdiff(_indicator18)
+input_19 = tangentdiff(_indicator19)
+
+
+// LAYERS : 
+
+// Input Layers 
+
+n_0 = ActivationFunctionTanh(input_1 + 0)   
+n_1 = ActivationFunctionTanh(input_2 + 0) 
+n_2 = ActivationFunctionTanh(input_3 + 0) 
+n_3 = ActivationFunctionTanh(input_4 + 0) 
+n_4 = ActivationFunctionTanh(input_5 + 0)
+n_5 = ActivationFunctionTanh(input_6 + 0)
+n_6 = ActivationFunctionTanh(input_7 + 0)
+n_7 = ActivationFunctionTanh(input_8 + 0)
+n_8 = ActivationFunctionTanh(input_9 + 0)
+n_9 = ActivationFunctionTanh(input_10 + 0)
+n_10 = ActivationFunctionTanh(input_11 + 0)
+n_11 = ActivationFunctionTanh(input_12 + 0)
+n_12 = ActivationFunctionTanh(input_13 + 0)
+n_13 = ActivationFunctionTanh(input_14 + 0)
+n_14 = ActivationFunctionTanh(input_15 + 0)
+n_15 = ActivationFunctionTanh(input_16 + 0)
+n_16 = ActivationFunctionTanh(input_17 + 0)
+n_17 = ActivationFunctionTanh(input_18 + 0)
+n_18 = ActivationFunctionTanh(input_19 + 0)
+
+
+
+// Hidden Layers - 1
+
+n_19 = ActivationFunctionTanh( 52.837840  * n_0  + -34.201225 * n_1  + 38.960812 * n_2  + 5.592289  * n_3  + -22.610776 * n_4  + -70.054901 * n_5  + 
+                               14.423002  * n_6  + 10.120193  * n_7  + -35.155402* n_8  + -51.706552* n_9  + -55.268561 * n_10 + -53.904912 * n_11 + 
+                               -42.977207 * n_12 + 62.802809  * n_13 + 74.169249 * n_14 + 66.839398 * n_15 + 41.936274  * n_16 + 1.102856   * n_17 + 
+                               -108.439737 * n_18 + 39.304512 ) 
+
+
+n_20 = ActivationFunctionTanh( -37.832450 * n_0  + 7.123268   * n_1  + 0.789585  * n_2  + 9.995760  * n_3  + -15.981465 * n_4  + 10.373729  * n_5  + 
+                               -24.572326 * n_6  + 82.415254  * n_7  + 2.109146  * n_8  + -67.567661* n_9  + -54.659093 * n_10 + -19.170014 * n_11 + 
+                               41.420784  * n_12 + 101.864341 * n_13 + 63.479857 * n_14 + 21.905533 * n_15 + -14.088866 * n_16 + -43.043595 * n_17 + 
+                               -75.006982 * n_18 + -21.330688 ) 
+
+
+n_21 = ActivationFunctionTanh( -59.355328  * n_0  + -6.484519  * n_1  + 38.891522  * n_2  + -40.823312* n_3  + -5.528698  * n_4  + -16.898070 * n_5  + 
+                               -32.390997  * n_6  + 94.051719  * n_7  + 3.776645   * n_8  + -4.608196 * n_9  + -15.414148 * n_10 + -39.996880 * n_11 + 
+                               -88.351133  * n_12 + -127.242725* n_13 + -72.947885 * n_14 + -13.172230* n_15 + 44.610688  * n_16 + 93.223427  * n_17 + 
+                               163.263146  * n_18 + 39.796113 ) 
+
+n_22 = ActivationFunctionTanh( 29.820835  * n_0  + -2.224059  * n_1  + 7.111536  * n_2  + 18.318841 * n_3  + -10.960563 * n_4  + -11.654421 * n_5  + 
+                              -27.770846  * n_6  + -64.906637 * n_7  + 22.706021 * n_8  + 20.318286 * n_9  + 6.730371   * n_10 +  -5.772614 * n_11 + 
+                               -21.275432 * n_12 + -7.441084  * n_13 + 10.866487 * n_14 + 23.714002 * n_15 + 28.647870  * n_16 + 21.613673  * n_17 + 
+                              -25.213859 * n_18 + -14.756525 ) 
+
+n_23 = ActivationFunctionTanh( 83.107209  * n_0  + -3.755753  * n_1  + 28.286978 * n_2  + -2.042898 * n_3  + -42.383024 * n_4  + -0.979595   * n_5  + 
+                               -7.069344  * n_6  + -47.574795 * n_7  + -37.294632* n_8  + -13.705527* n_9  + -3.401552  * n_10 + 1.108021    * n_11 + 
+                               1.443413   * n_12 + -17.482420 * n_13 + -14.019000* n_14 + -2.817824 * n_15 + 15.984599  * n_16 + 39.350090   * n_17 + 
+                               97.108715  * n_18 + -37.766847 ) 
+
+// Hidden Layer 2 : 
+
+n_24 =  ActivationFunctionTanh(8.566236 * n_19 + -2.797733 * n_20 + -9.685628 * n_21 + -2.148051 * n_22 + -35.608351 * n_23 + 0.920142)
+
+
+// Output Layer 
+
+_output = ActivationFunctionTanh( 1.771188 * n_24 + -0.811110 ) 
+
+
+_chg_src = tangentdiff(src) * 100
+
+_seed = (_output - _chg_src)
+
+// MACD : SEED 
+
+
+fastLength   = 12
+slowlength   = 26
+signalLength = 9
+
+
+macd   = ema(_seed, fastLength) - ema(_seed, slowlength)
+signal = ema(macd, signalLength)
+	   
+
+hist = macd - signal
+
+// Conditions : 
+
+positive_condition = hist < 0 
+negative_condition = hist > 0
+
+
+
+//Plot data
+
+hline(0, color=color.black, linewidth = 3)
+
+plot(hist, color=(positive_condition ? color.green : color.red), style=plot.style_histogram,linewidth= 5 , title="Histogram", transp=0)
+
+plot(hist,color= color.white , style = plot.style_line , linewidth = 1 , transp = 15)
+
+
+// Definition : Barcolor 
+
+_lights = 0.00 
+
+
+if (lights=="ON")
+
+    _lights:= 1.00
+    
+if (lights=="OFF")
+
+    _lights:= -1.00   
+
+
+bcolor_on  = _lights ==  1.00
+bcolor_off = _lights == -1.00
+
+
+color_condition() => 
+
+    (positive_condition and _lights == 1.00) ?  color.green  : (negative_condition and _lights == 1.00)  ?  color.red : na 
+   
+  
+color barColor = na 
+barColor := color_condition()
+
+barcolor(color = barColor)
+
+alertcondition(positive_condition , title='Buy Signal', message='Buy Signal ')
+alertcondition(negative_condition , title='Sell Signal', message='Sell Signal ')
